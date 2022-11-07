@@ -370,6 +370,20 @@ func (j *Job) UpdateConfig(ctx context.Context, config string) error {
 
 }
 
+// UpdateJobDescription Update the description information for job
+func (j *Job) UpdateJobDescription(ctx context.Context, desc string) error {
+	qr := map[string]string{"description": desc}
+	resp, err := j.Jenkins.Requester.PostXML(ctx, j.Base+"/submitDescription", "", nil, qr)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode == 200 {
+		j.Poll(ctx)
+		return nil
+	}
+	return errors.New(strconv.Itoa(resp.StatusCode))
+}
+
 func (j *Job) GetConfig(ctx context.Context) (string, error) {
 	var data string
 	_, err := j.Jenkins.Requester.GetXML(ctx, j.Base+"/config.xml", &data, nil)
